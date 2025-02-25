@@ -4,10 +4,10 @@ class DB {
   public PDO $pdo;
 
   public function __construct(
-    public string $host,
+    public string $host     = 'localhost',
     public string $database,
-    public string $username,
-    public string $password 
+    public string $username = 'root',
+    public string $password = 'root' 
   ){
     try {
       $this->pdo = new PDO(
@@ -17,6 +17,7 @@ class DB {
 
       $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     } catch(PDOException $e) {
+      file_put_contents('logs.txt', $e->getMessage(), FILE_APPEND);
     }
   }
 }

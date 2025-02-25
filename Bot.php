@@ -7,7 +7,10 @@ use GuzzleHttp\Client;
 
 class Bot {
   private string $api;
-  private $http;
+  private        $http;
+  public  string $text;
+  public  int    $chatId;
+  public  string $firstName;
 
   public function __construct(string $token){
     $this->api  = "https://api.telegram.org/bot$token/"; // $token got from credentials.php // FIXME: Replace with .env
@@ -17,18 +20,19 @@ class Bot {
   public function handle(string $update){
     $update = json_decode($update);
 
-    $text      = $update->message->text;
-    $chatId    = $update->message->chat->id;
-    $firstName = $update->message->chat->first_name;
+    $this->text      = $update->message->text;
+    $this->chatId    = $update->message->chat->id;
+    $this->firstName = $update->message->chat->first_name;
 
-    match($text) {
-      '/start' => $this->handleStartCommand($chatId, $text, $firstName),
+    match($this->text){
+      '/start' => $this->handleStartCommand(),
+      '/list'  => $this->handleListCommand(),
     };
 
   }
 
-  public function handleStartCommand(int $chatId, string $text, string $firstName){
-      $text = "Assalomu alaykum $firstName";
+  public function handleStartCommand(){
+      $text = "Assalomu alaykum $this->firstName";
       $text .= "\n\nBotimizga xush kelibsiz!";
       $text .= "\n\nBotdan foydalanish uchun quyidagi buyruqlardan birini tanlang:";
       $text .= "\n\n/list - Bor tasklar ro'yxati";
@@ -39,7 +43,7 @@ class Bot {
       
       $this->http->post('sendMessage', [
         'form_params' => [
-            'chat_id' => $chatId,
+            'chat_id' => $this->chatId,
             'text'    => $text
         ]
       ]);
